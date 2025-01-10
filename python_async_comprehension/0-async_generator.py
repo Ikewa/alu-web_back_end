@@ -1,46 +1,20 @@
 #!/usr/bin/env python3
 """
-Async routine wait_n that spawns wait_random n times and returns the delays
-in ascending order.
+Asynchronous generator that yields random numbers after waiting 1 second.
 """
 
 import asyncio
-from typing import List
-import importlib
-
-task_wait_random = importlib.import_module("3-tasks").wait_random
+import random
+from typing import Generator
 
 
-async def task_wait_n(n: int, max_delay: int) -> List[float]:
+async def async_generator() -> Generator[float, None, None]:   # type: ignore
     """
-    Spawns task_wait_random n times with the specified max_delay.
-
-    Args:
-        n (int): The number of times to call wait_random.
-        max_delay (int): The maximum delay in seconds for wait_random.
-
-    Returns:
-        List[float]: A list of all the delays in ascending order.
+    An asynchronous generator that loops 10 times, waiting 1 second
+    between each iteration and yielding a random number between 0 and 10.
+    Yields:
+        int: A random number between 0 and 10.
     """
-    delays = []
-    for _ in range(n):
-        delays.append(asyncio.create_task(task_wait_random(max_delay)))
-
-    completed, _ = await asyncio.wait(delays)
-    results = [task.result() for task in completed]
-
-    # Manually insert each delay into the correct position in a new list
-    sorted_results = []
-    for delay in results:
-        inserted = False
-        # Find the correct position to insert this delay
-        for i in range(len(sorted_results)):
-            if delay < sorted_results[i]:
-                sorted_results.insert(i, delay)
-                inserted = True
-                break
-        # If delay is greater than all elements in sorted_results, append it
-        if not inserted:
-            sorted_results.append(delay)
-
-    return sorted_results
+    for _ in range(10):
+        await asyncio.sleep(1)  # Wait for 1 second asynchronously
+        yield random.uniform(0, 10)  # Yield a random number between 0 and 10
